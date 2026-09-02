@@ -97,6 +97,7 @@ def main():
     save_results(high_value, args.output)
     save_results(by_category, args.output_agg)
 
+    input("Presiona Enter para finalizar y cerrar Spark...")
     spark.stop()
 
 
