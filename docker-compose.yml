@@ -9,8 +9,8 @@ services:
     environment:
       - CLUSTER_NAME=bigdata-trm
     ports:
-      - "9870:9870"   # HDFS NameNode Web UI
-      - "8020:8020"   # HDFS RPC (NameNode)
+      - "9870:9870"   # HDFS Web UI
+      - "8020:8020"   # HDFS RPC
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     healthcheck:
@@ -45,7 +45,7 @@ services:
       datanode:
         condition: service_started
     ports:
-      - "8088:8088"   # YARN ResourceManager Web UI
+      - "8088:8088"   # YARN Web UI
 
   nodemanager:
     image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
@@ -58,7 +58,10 @@ services:
       - resourcemanager
 
   spark-master:
-    image: apache/spark:3.5.3-python3
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    image: bigdata-spark:3.5.3
     hostname: spark-master
     container_name: spark-master
     restart: unless-stopped
@@ -69,17 +72,21 @@ services:
       --webui-port 8080
     ports:
       - "8080:8080"   # Spark Master Web UI
-      - "7077:7077"   # Spark Master (RPC)
+      - "7077:7077"   # Spark Master RPC
       - "4040:4040"   # Spark Application UI (driver)
     volumes:
       - ./scripts:/scripts
       - ./data:/data
+      - ./reports:/reports
     depends_on:
       namenode:
         condition: service_healthy
 
   spark-worker:
-    image: apache/spark:3.5.3-python3
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    image: bigdata-spark:3.5.3
     hostname: spark-worker
     container_name: spark-worker
     restart: unless-stopped
@@ -89,8 +96,10 @@ services:
     volumes:
       - ./scripts:/scripts
       - ./data:/data
+      - ./reports:/reports
     depends_on:
       - spark-master
+
 volumes:
   hadoop_namenode:
   hadoop_datanode:
