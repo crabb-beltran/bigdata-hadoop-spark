@@ -121,6 +121,19 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
+  mongodb:
+    image: mongo:7.0
+    hostname: mongodb
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo:/mongo
+      - ./data:/csv:ro
+
 volumes:
   hadoop_namenode:
   hadoop_datanode:
+  mongo_data:
